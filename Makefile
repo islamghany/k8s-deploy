@@ -6,13 +6,13 @@ delete:
 	kubectl delete -f app.yaml
 
 get:
-	kubectl get all
+	kubectl get pods --all-namespaces
 
 logs:
 	kubectl logs -f deployment.apps/app
 
 pods:
-	kubectl get pods
+	kubectl get pods  --namespace k8s-deploy
 
 ip:
 	minikube ip
