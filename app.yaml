@@ -17,7 +17,7 @@ metadata:
 spec: # specification of the deployment
   replicas: 1
   selector:
-    matchLabels: # selects those pods, that have the label (app: app)
+    matchLabels: # selects those pods, it has always to be the same as the labels of the pod, it used by deployment to manage the pods.
       name: app
   template:
     metadata:
@@ -45,10 +45,11 @@ spec:
     name: app # all pods with the label (app: app) will be selected and exposed by the service
   ports:
     - port: 8080 # the service listens on this port and forwards to the targetPort
-      targetPort: 80 # the port that the service forwards to
+      targetPort: 80 # the port that the service forwards to, should be the same as the containerPort of the pod
 
 # ... Ingress YAML definition1
 # An Ingress resource  that exposes the pods to the public internet
+# The Ingress retrieves the right Service by name and port and routes the traffic to it
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -64,7 +65,7 @@ spec:
           - path: /app # the path that the request should match
             pathType: Prefix # the type of the path
             backend:
-              service:
-                name: app
+              service: # must be a service in the same namespace as the ingress
+                name: app # the name of the service that the request should be forwarded to
                 port:
-                  number: 8080
+                  number: 8080 # the port of the service that the request should be forwarded to

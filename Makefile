@@ -17,4 +17,7 @@ pods:
 ip:
 	minikube ip
 
-.PHONY: run delete get logs pods ip
+labels:
+	kubectl get pods --namespace k8s-deploy  --show-labels
+
+.PHONY: run delete get logs pods ip labels
