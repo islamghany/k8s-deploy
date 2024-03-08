@@ -1,0 +1,59 @@
+# ... Deployment YAML definition
+# A Deployment resource is used to define the desired state of the pods
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec: # specification of the deployment
+  replicas: 1
+  selector:
+    matchLabels: # selects those pods, that have the label (app: app)
+      name: app
+  template:
+    metadata:
+      labels: # Pod label, that wraps the container (app)
+        name: app
+    spec:
+      containers:
+        - name: app # container name
+          image: k8s-deploy # image name in minikube (docker)
+          ports:
+            - containerPort: 80 # the port that the container listens on
+          imagePullPolicy: IfNotPresent # pull the image from the local registry, if it's not present there get it from the internet
+
+# ... Service YAML definition
+# A Service resource makes pods available to other pods or users inside and outside of the cluster
+# A Service also ensures continuous availability of the pods
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+spec:
+  selector:
+    name: app # all pods with the label (app: app) will be selected and exposed by the service
+  ports:
+    - port: 8080 # the service listens on this port and forwards to the targetPort
+      targetPort: 80 # the port that the service forwards to
+
+# ... Ingress YAML definition1
+# An Ingress resource  that exposes the pods to the public internet
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app
+  annotations: # annotations are arbitrary key-value pairs that can be used to configure the Ingress controller
+    nginx.ingress.kubernetes.io/rewrite-target: / # rewrite the URL to /, so that the request is forwarded to the root path
+spec:
+  rules: # is a collection of rules on how to route the traffic to the services
+    - http:
+        paths:
+          - path: /second # the path that the request should match
+            pathType: Prefix # the type of the path
+            backend:
+              service:
+                name: app
+                port:
+                  number: 8080
